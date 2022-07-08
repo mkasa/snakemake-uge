@@ -317,8 +317,10 @@ class StatusChecker:
 
 
 if __name__ == "__main__":
-    jobid = int(sys.argv[1])
-    outlog = sys.argv[2]
+    split_args = sys.argv[1].split(" ")
+    jobid = int(split_args[0])
+    outlog = split_args[1]
+    # outlog = sys.argv[2]
     uge_status_checker = StatusChecker(jobid, outlog)
     try:
         print(uge_status_checker.get_status())
