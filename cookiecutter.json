@@ -1,11 +1,11 @@
 {
     "latency_wait": 45,
-    "use_conda": true,
+    "use_conda": false,
     "use_singularity": false,
     "keep_going": true,
     "restart_times": 1,
     "jobs": 500,
-    "default_mem_mb": 1024,
+    "default_mem_mb": 3000,
     "default_threads": 1,
     "default_cluster_logdir": "cluster_logs",
     "default_queue": "",
