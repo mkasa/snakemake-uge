@@ -94,7 +94,7 @@ class Submitter:
     def resources_cmd(self) -> str:
         mem_in_cluster_units = self.mem_mb.to(self.memory_units)
         queue_name = 'mjobs.q'
-        if mem_in_cluster_units >= 500:
+        if mem_in_cluster_units.value >= 500:
             queue_name = 'lmem.q'
         if self.threads > 1:
             res_cmd = "-pe def_slot {threads} ".format(threads=self.threads)
@@ -112,7 +112,7 @@ class Submitter:
                     print("ERROR: You requested larger memory than 500GB and longer running time than 2 weeks, but there is not such queue", file=sys.stderr)
                     sys.exit(2)
                 queue_name = 'ljobs.q'
-            else if 48 <= hrs:
+            elif 48 <= hrs:
                 if queue_name == 'mjobs.q':
                     queue_name = 'ljobs.q'
         if queue_name != 'mjobs.q':
