@@ -78,7 +78,7 @@ class Submitter:
             mem_value = CookieCutter.get_default_mem_mb()
 
         return Memory(mem_value, unit=Unit.MEGA)
-    
+
     @property
     def memory_units(self) -> Unit:
         return self._memory_units
@@ -93,19 +93,30 @@ class Submitter:
     @property
     def resources_cmd(self) -> str:
         mem_in_cluster_units = self.mem_mb.to(self.memory_units)
+        queue_name = 'mjobs.q'
+        if mem_in_cluster_units >= 500:
+            queue_name = 'lmem.q'
         if self.threads > 1:
-            res_cmd = "-pe threads {threads} ".format(threads=self.threads)
+            res_cmd = "-pe def_slot {threads} ".format(threads=self.threads)
             per_thread = round(mem_in_cluster_units.value / self.threads, 2)
             per_thread = math.ceil(per_thread)
         else:
             res_cmd = ""
             per_thread = math.ceil(mem_in_cluster_units.value)
-        res_cmd += "-l h_vmem={per_thread}G ".format(per_thread=per_thread)
-        res_cmd += "-l m_mem_free={per_thread}G".format(per_thread=per_thread)
+        res_cmd += "-l s_vmem={per_thread}G ".format(per_thread=per_thread)
         if self.runtime:
             hrs = self.runtime // 60
             mins = runtime % 60
-            res_cmd += " -l h_rt={hours}:{min}:00".format(hours=hrs, mins=mins)
+            if 336 <= hrs:
+                if queue_name == 'lmem.q':
+                    print("ERROR: You requested larger memory than 500GB and longer running time than 2 weeks, but there is not such queue", file=sys.stderr)
+                    sys.exit(2)
+                queue_name = 'ljobs.q'
+            else if 48 <= hrs:
+                if queue_name == 'mjobs.q':
+                    queue_name = 'ljobs.q'
+        if queue_name != 'mjobs.q':
+            res_cmd += "-l {queue_name} ".format(queue_name=queue_name)
         return res_cmd
 
     @property
